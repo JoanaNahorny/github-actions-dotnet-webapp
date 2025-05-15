@@ -1,24 +1,25 @@
-name: Push and Schedule Workflow
+name: github-actions .NET
 
 on:
-  push:
-    branches:
-      - main
-  schedule:
-    - cron: '0 * * * *'  # Executa a cada hora
+    push:
+        branches: [ "main" ]
+    pull_request:
+        branches: [ "main" ]
+    schedule:
+        - cron: '0 0 * * 1'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+    build:
+        runs-on: ubuntu-latest
+        
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v4
+              with:
+                dotnet-version: 8.0.x
+            - name: Restore dependencies
+              run: dotnet restore **/*.csproj
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Custom Push Script
-        run: |
-          echo "Push detected on branch $GITHUB_REF"
-          echo "Running custom script..."
-          # Adicione seus comandos personalizados aqui
-          # Exemplo:
-          # echo "Running tests..."
+            - name: Build
+              run: dotnet build **/*.csproj --no-restore
